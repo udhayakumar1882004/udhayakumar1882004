@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.utils import to_categorical
+import matplotlib.pyplot as plt
+
+# Load MNIST data
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Normalize the input data
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+# One-hot encode the labels
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
+
+# Build a simple neural network model
+model = Sequential([
+    Flatten(input_shape=(28, 28)),  # Flatten 28x28 images
+    Dense(128, activation='relu'),
+    Dense(64, activation='relu'),
+    Dense(10, activation='softmax')  # Output layer for 10 classes
+])
+
+# Compile the model
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Train the model
+model.fit(x_train, y_train, epochs=5, validation_split=0.1)
+
+# Evaluate on test set
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print(f"\nTest accuracy: {test_acc:.4f}")
+
+# Predict and visualize results
+predictions = model.predict(x_test)
+
+# Show some predictions
+for i in range(5):
+    plt.imshow(x_test[i], cmap='gray')
+    plt.title(f"Predicted: {predictions[i].argmax()}, Actual: {y_test[i].argmax()}")
+    plt.axis('off')
+    plt.show()
